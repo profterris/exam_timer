@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chronomètre d'épreuve</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: #0d0f14;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  body {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr 1fr 1fr 1fr 1.7fr;
+    gap: 3px;
+    padding: 1.2vh 1.5vw;
+  }
+
+  /* Horloge */
+  #horloge {
+    font-family: 'DM Mono', monospace;
+    font-size: 5.5vh;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4vh 0;
+    background: #13161e;
+    border-radius: 5px;
+    border-left: 5px solid #5a6070;
+  }
+
+  /* Blocs */
+  .bloc {
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.6vh 2.5vw;
+    gap: 0.3vh;
+    background: #13161e;
+    border-left: 5px solid #1e2330;
+  }
+
+  .label {
+    font-size: 2.2vh;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .valeur {
+    font-family: 'DM Mono', monospace;
+    font-size: 5vh;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+  }
+
+  input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #2a3040;
+    font-family: 'DM Mono', monospace;
+    font-size: 5vh;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    width: 100%;
+    outline: none;
+    padding-bottom: 0.2vh;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder {
+    font-size: 0.5em;
+    opacity: 0.4;
+  }
+
+  /* Couleurs par bloc */
+  .bloc-debut   { border-left-color: #4a9eff; }
+  .bloc-debut   .label  { color: #4a9eff; }
+  .bloc-debut   .valeur { color: #ffffff; }
+  .bloc-debut   input   { color: #ffffff; border-bottom-color: #4a9eff44; }
+  .bloc-debut   input:focus { border-bottom-color: #4a9eff; }
+
+  .bloc-duree   { border-left-color: #a78bfa; }
+  .bloc-duree   .label  { color: #a78bfa; }
+  .bloc-duree   .valeur { color: #ffffff; }
+  .bloc-duree   input   { color: #ffffff; border-bottom-color: #a78bfa44; }
+  .bloc-duree   input:focus { border-bottom-color: #a78bfa; }
+
+  .bloc-sortie  { border-left-color: #fb923c; }
+  .bloc-sortie  .label  { color: #fb923c; }
+  .bloc-sortie  .valeur { color: #ffffff; }
+  .bloc-sortie  input   { color: #ffffff; border-bottom-color: #fb923c44; }
+  .bloc-sortie  input:focus { border-bottom-color: #fb923c; }
+
+  .bloc-fin     { border-left-color: #34d399; }
+  .bloc-fin     .label  { color: #34d399; }
+  .bloc-fin     .valeur { color: #ffffff; }
+
+  .bloc-restant {
+    border-left-color: #facc15;
+    background: #181600;
+  }
+  .bloc-restant .label  { color: #facc15; font-size: 2.5vh; }
+  .bloc-restant .valeur { color: #facc15; font-size: 7.5vh; }
+
+  .bloc-restant.urgent {
+    border-left-color: #f87171;
+    background: #1a0a0a;
+  }
+  .bloc-restant.urgent .label { color: #f87171; }
+  .bloc-restant.urgent .valeur {
+    color: #f87171;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.45; }
+  }
+
+  #btn-fullscreen {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background: #13161e;
+    border: 1px solid #1e2330;
+    color: #5a6070;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  #btn-fullscreen:hover { color: #fff; border-color: #facc15; }
+</style>
+</head>
+<body>
+
+<div id="horloge">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.3vh;">
+    <span style="font-family:'DM Sans',sans-serif;font-size:2vh;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#5a6070;">Heure actuelle</span>
+    <span id="horloge-val">--:--:--</span>
+  </div>
+</div>
+
+<div class="bloc bloc-debut">
+  <div class="label">Heure de début</div>
+  <div class="valeur">
+    <input type="text" id="debut" placeholder="ex : 09:00" maxlength="8" autocomplete="off">
+  </div>
+</div>
+
+<div class="bloc bloc-duree">
+  <div class="label">Durée de l'épreuve</div>
+  <div class="valeur">
+    <input type="text" id="duree" placeholder="ex : 2:00" maxlength="8" autocomplete="off">
+  </div>
+</div>
+
+<div class="bloc bloc-sortie">
+  <div class="label">Sortie autorisée à partir de</div>
+  <div class="valeur">
+    <input type="text" id="sortie" placeholder="ex : 10:00" maxlength="8" autocomplete="off">
+  </div>
+</div>
+
+<div class="bloc bloc-fin">
+  <div class="label">Heure de fin</div>
+  <div class="valeur" id="fin">—</div>
+</div>
+
+<div class="bloc bloc-restant" id="bloc-restant">
+  <div class="label">Temps restant</div>
+  <div class="valeur" id="restant">—</div>
+</div>
+
+<button id="btn-fullscreen" onclick="basculerPleinEcran()">⛶ Plein écran</button>
+
+<script>
+  function padZ(n) { return String(n).padStart(2,'0'); }
+
+  function parseHeure(str) {
+    var parts = str.trim().split(':').map(Number);
+    if (!str.trim() || parts.some(isNaN)) return null;
+    return (parts[0]||0)*3600 + (parts[1]||0)*60 + (parts[2]||0);
+  }
+
+  function formatHeure(s) {
+    if (s < 0) s = 0;
+    return padZ(Math.floor(s/3600)) + ':' + padZ(Math.floor((s%3600)/60)) + ':' + padZ(s%60);
+  }
+
+  function maintenant() {
+    var d = new Date();
+    return d.getHours()*3600 + d.getMinutes()*60 + d.getSeconds();
+  }
+
+  function actualiser() {
+    var d = new Date();
+    document.getElementById('horloge-val').textContent =
+      padZ(d.getHours()) + ':' + padZ(d.getMinutes()) + ':' + padZ(d.getSeconds());
+
+    var debut = parseHeure(document.getElementById('debut').value);
+    var duree = parseHeure(document.getElementById('duree').value);
+    var bloc  = document.getElementById('bloc-restant');
+
+    if (debut !== null && duree !== null) {
+      var finS  = debut + duree;
+      document.getElementById('fin').textContent = formatHeure(finS);
+      var reste = finS - maintenant();
+      document.getElementById('restant').textContent = reste <= 0 ? '00:00:00' : formatHeure(reste);
+      bloc.className = 'bloc bloc-restant' + (reste > 0 && reste <= 900 ? ' urgent' : '');
+    } else {
+      document.getElementById('fin').textContent = '—';
+      document.getElementById('restant').textContent = '—';
+      bloc.className = 'bloc bloc-restant';
+    }
+  }
+
+  function basculerPleinEcran() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+
+  setInterval(actualiser, 1000);
+  actualiser();
+</script>
+</body>
+</html>
