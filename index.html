@@ -8,19 +8,51 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
-    height: 100%;
-    overflow: hidden;
-    background: #0d0f14;
-    font-family: 'DM Sans', sans-serif;
-  }
+  html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; }
 
+  /* ── THÈME NOIR (défaut) ── */
   body {
+    --bg:           #0d0f14;
+    --surface:      #13161e;
+    --horloge-bg:   #13161e;
+    --horloge-bord: #5a6070;
+    --horloge-txt:  #ffffff;
+    --horloge-lbl:  #5a6070;
+    --input-bord:   #2a3040;
+    --valeur-txt:   #ffffff;
+    --restant-bg:   #181600;
+    --urgent-bg:    #1a0a0a;
+    background: var(--bg);
     height: 100vh;
     display: grid;
     grid-template-rows: auto 1fr 1fr 1fr 1fr 1.7fr;
     gap: 3px;
     padding: 1.2vh 1.5vw;
+    transition: background 0.3s;
+  }
+
+  /* ── THÈME BLANC ── */
+  body.light {
+    --bg:           #f0f2f7;
+    --surface:      #ffffff;
+    --horloge-bg:   #ffffff;
+    --horloge-bord: #94a3b8;
+    --horloge-txt:  #0f172a;
+    --horloge-lbl:  #94a3b8;
+    --input-bord:   #cbd5e1;
+    --valeur-txt:   #0f172a;
+    --restant-bg:   #fffbeb;
+    --urgent-bg:    #fff1f2;
+  }
+
+  /* Couleurs d'accent — identiques dans les deux thèmes */
+  :root {
+    --bleu:   #2563eb;
+    --violet: #7c3aed;
+    --orange: #ea580c;
+    --vert:   #059669;
+    --jaune:  #d97706;
+    --rouge:  #dc2626;
   }
 
   /* Horloge */
@@ -29,15 +61,16 @@
     font-size: 5.5vh;
     font-weight: 500;
     letter-spacing: 0.12em;
-    color: #ffffff;
+    color: var(--horloge-txt);
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0.4vh 0;
-    background: #13161e;
+    background: var(--horloge-bg);
     border-radius: 5px;
-    border-left: 5px solid #5a6070;
+    border-left: 5px solid var(--horloge-bord);
+    transition: background 0.3s, color 0.3s;
   }
 
   /* Blocs */
@@ -48,8 +81,9 @@
     justify-content: center;
     padding: 0.6vh 2.5vw;
     gap: 0.3vh;
-    background: #13161e;
-    border-left: 5px solid #1e2330;
+    background: var(--surface);
+    border-left: 5px solid #ccc;
+    transition: background 0.3s;
   }
 
   .label {
@@ -65,64 +99,56 @@
     font-weight: 500;
     letter-spacing: 0.06em;
     line-height: 1.1;
+    color: var(--valeur-txt);
   }
 
   input {
     background: transparent;
     border: none;
-    border-bottom: 2px solid #2a3040;
+    border-bottom: 2px solid var(--input-bord);
     font-family: 'DM Mono', monospace;
     font-size: 5vh;
     font-weight: 500;
     letter-spacing: 0.06em;
+    color: var(--valeur-txt);
     width: 100%;
     outline: none;
     padding-bottom: 0.2vh;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, color 0.3s;
   }
 
-  input::placeholder {
-    font-size: 0.5em;
-    opacity: 0.4;
-  }
+  input::placeholder { font-size: 0.5em; opacity: 0.35; }
 
   /* Couleurs par bloc */
-  .bloc-debut   { border-left-color: #4a9eff; }
-  .bloc-debut   .label  { color: #4a9eff; }
-  .bloc-debut   .valeur { color: #ffffff; }
-  .bloc-debut   input   { color: #ffffff; border-bottom-color: #4a9eff44; }
-  .bloc-debut   input:focus { border-bottom-color: #4a9eff; }
+  .bloc-debut  { border-left-color: var(--bleu); }
+  .bloc-debut  .label { color: var(--bleu); }
+  .bloc-debut  input:focus { border-bottom-color: var(--bleu); }
 
-  .bloc-duree   { border-left-color: #a78bfa; }
-  .bloc-duree   .label  { color: #a78bfa; }
-  .bloc-duree   .valeur { color: #ffffff; }
-  .bloc-duree   input   { color: #ffffff; border-bottom-color: #a78bfa44; }
-  .bloc-duree   input:focus { border-bottom-color: #a78bfa; }
+  .bloc-duree  { border-left-color: var(--violet); }
+  .bloc-duree  .label { color: var(--violet); }
+  .bloc-duree  input:focus { border-bottom-color: var(--violet); }
 
-  .bloc-sortie  { border-left-color: #fb923c; }
-  .bloc-sortie  .label  { color: #fb923c; }
-  .bloc-sortie  .valeur { color: #ffffff; }
-  .bloc-sortie  input   { color: #ffffff; border-bottom-color: #fb923c44; }
-  .bloc-sortie  input:focus { border-bottom-color: #fb923c; }
+  .bloc-sortie { border-left-color: var(--orange); }
+  .bloc-sortie .label { color: var(--orange); }
+  .bloc-sortie input:focus { border-bottom-color: var(--orange); }
 
-  .bloc-fin     { border-left-color: #34d399; }
-  .bloc-fin     .label  { color: #34d399; }
-  .bloc-fin     .valeur { color: #ffffff; }
+  .bloc-fin    { border-left-color: var(--vert); }
+  .bloc-fin    .label { color: var(--vert); }
 
   .bloc-restant {
-    border-left-color: #facc15;
-    background: #181600;
+    border-left-color: var(--jaune);
+    background: var(--restant-bg);
   }
-  .bloc-restant .label  { color: #facc15; font-size: 2.5vh; }
-  .bloc-restant .valeur { color: #facc15; font-size: 7.5vh; }
+  .bloc-restant .label  { color: var(--jaune); font-size: 2.5vh; }
+  .bloc-restant .valeur { color: var(--jaune); font-size: 7.5vh; }
 
   .bloc-restant.urgent {
-    border-left-color: #f87171;
-    background: #1a0a0a;
+    border-left-color: var(--rouge);
+    background: var(--urgent-bg);
   }
-  .bloc-restant.urgent .label { color: #f87171; }
+  .bloc-restant.urgent .label { color: var(--rouge); }
   .bloc-restant.urgent .valeur {
-    color: #f87171;
+    color: var(--rouge);
     animation: pulse 1s infinite;
   }
 
@@ -131,13 +157,13 @@
     50%       { opacity: 0.45; }
   }
 
-  #btn-fullscreen {
+  /* Boutons fixes */
+  .btn-fixe {
     position: fixed;
     bottom: 1rem;
-    right: 1rem;
-    background: #13161e;
-    border: 1px solid #1e2330;
-    color: #5a6070;
+    background: var(--surface);
+    border: 1px solid var(--input-bord);
+    color: var(--horloge-lbl);
     font-family: 'DM Sans', sans-serif;
     font-size: 0.72rem;
     letter-spacing: 0.1em;
@@ -145,17 +171,20 @@
     padding: 0.4rem 0.9rem;
     cursor: pointer;
     border-radius: 3px;
-    transition: color 0.2s, border-color 0.2s;
+    transition: color 0.2s, border-color 0.2s, background 0.3s;
   }
 
-  #btn-fullscreen:hover { color: #fff; border-color: #facc15; }
+  #btn-fullscreen { right: 1rem; }
+  #btn-theme      { right: 9rem; }
+
+  .btn-fixe:hover { color: var(--horloge-txt); border-color: var(--jaune); }
 </style>
 </head>
-<body>
+<body id="body">
 
 <div id="horloge">
   <div style="display:flex;flex-direction:column;align-items:center;gap:0.3vh;">
-    <span style="font-family:'DM Sans',sans-serif;font-size:2vh;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#5a6070;">Heure actuelle</span>
+    <span style="font-family:'DM Sans',sans-serif;font-size:2vh;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--horloge-lbl);">Heure actuelle</span>
     <span id="horloge-val">--:--:--</span>
   </div>
 </div>
@@ -191,9 +220,18 @@
   <div class="valeur" id="restant">—</div>
 </div>
 
-<button id="btn-fullscreen" onclick="basculerPleinEcran()">⛶ Plein écran</button>
+<button class="btn-fixe" id="btn-theme" onclick="basculerTheme()">☀ Fond blanc</button>
+<button class="btn-fixe" id="btn-fullscreen" onclick="basculerPleinEcran()">⛶ Plein écran</button>
 
 <script>
+  var modeClaire = false;
+
+  function basculerTheme() {
+    modeClaire = !modeClaire;
+    document.getElementById('body').className = modeClaire ? 'light' : '';
+    document.getElementById('btn-theme').textContent = modeClaire ? '🌙 Fond noir' : '☀ Fond blanc';
+  }
+
   function padZ(n) { return String(n).padStart(2,'0'); }
 
   function parseHeure(str) {
